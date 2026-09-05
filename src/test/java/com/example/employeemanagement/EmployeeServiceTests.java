@@ -19,14 +19,14 @@ class EmployeeServiceTests {
     @Test
     void testCrudOperations() {
         // Create
-        Employee emp = new Employee("Alice", "Brown", "alice@example.com", "IT", "Developer", 50000, "Robert Vance");
+        Employee emp = new Employee("Ishaan", "Kulkarni", "ishaan@example.com", "IT", "Developer", 50000, "Rajesh Menon");
         Employee saved = employeeService.saveEmployee(emp);
         assertNotNull(saved.getId());
-        assertEquals("Robert Vance", saved.getManagerName());
+        assertEquals("Rajesh Menon", saved.getManagerName());
 
         // Read
         Employee fetched = employeeService.getEmployeeById(saved.getId());
-        assertEquals("Alice", fetched.getFirstName());
+        assertEquals("Ishaan", fetched.getFirstName());
 
         // Update
         fetched.setSalary(55000);
@@ -41,8 +41,8 @@ class EmployeeServiceTests {
         List<Employee> itEmployees = employeeService.searchAndFilterEmployees("IT", null, null);
         assertFalse(itEmployees.isEmpty());
 
-        List<Employee> aliceFilter = employeeService.searchAndFilterEmployees(null, null, "Alice");
-        assertFalse(aliceFilter.isEmpty());
+        List<Employee> ishaanFilter = employeeService.searchAndFilterEmployees(null, null, "Ishaan");
+        assertFalse(ishaanFilter.isEmpty());
 
         // Delete
         employeeService.deleteEmployee(saved.getId());

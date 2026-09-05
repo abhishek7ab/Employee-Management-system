@@ -17,7 +17,7 @@ public class EmployeeRestController {
         this.employeeService = employeeService;
     }
 
-    // 1. Get All Employees (Supports filtering: ?department=IT &manager=Robert &search=John)
+    // 1. Get All Employees (Supports filtering: ?department=IT &manager=Rajesh &search=Aarav)
     @GetMapping
     public List<Employee> getEmployees(
             @RequestParam(required = false) String department,
