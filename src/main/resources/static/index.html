@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StaffPulse - Employee Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <div class="brand-logo">SP</div>
+      <div class="brand-text">
+        <h1>StaffPulse</h1>
+        <p>Employee Management System &bull; College Project</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <span class="system-status">
+        <span class="status-dot"></span>
+        <span>Spring Boot API Live</span>
+      </span>
+      <span class="btn-h2" style="cursor: default; font-weight: 500;" title="Connected to local MySQL Database (employee_db)">
+        <span>🐬 MySQL: employee_db</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- Overview Stats Grid -->
+    <section class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper icon-purple">👥</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-value" id="statTotalEmployees">--</div>
+          <div class="stat-sub">Active staff members</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper icon-blue">🏢</div>
+        <div class="stat-info">
+          <div class="stat-label">Departments</div>
+          <div class="stat-value" id="statTotalDepts">--</div>
+          <div class="stat-sub">Across company</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper icon-green">📅</div>
+        <div class="stat-info">
+          <div class="stat-label">Present Today</div>
+          <div class="stat-value" id="statPresentToday">--</div>
+          <div class="stat-sub" id="statPresentRate">Attendance record</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper icon-amber">⏳</div>
+        <div class="stat-info">
+          <div class="stat-label">Pending Leaves</div>
+          <div class="stat-value" id="statPendingLeaves">--</div>
+          <div class="stat-sub">Awaiting decision</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav-wrapper">
+      <button class="tab-btn active" id="tabBtnEmployees" onclick="switchTab('employees')">
+        <span>👥 Employees</span>
+        <span class="tab-badge" id="badgeEmpCount">0</span>
+      </button>
+      <button class="tab-btn" id="tabBtnAttendance" onclick="switchTab('attendance')">
+        <span>📅 Daily Attendance</span>
+        <span class="tab-badge" id="badgeAttCount">0</span>
+      </button>
+      <button class="tab-btn" id="tabBtnLeaves" onclick="switchTab('leaves')">
+        <span>📝 Leave Requests</span>
+        <span class="tab-badge" id="badgeLeavesCount">0</span>
+      </button>
+    </nav>
+
+    <!-- ==================== MODULE 1: EMPLOYEES ==================== -->
+    <section class="tab-content active" id="tabEmployees">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="employeeSearchInput" placeholder="Search by name, role, department, manager..." oninput="handleEmployeeSearch()">
+          </div>
+          <select class="select-filter" id="employeeDeptFilter" onchange="handleEmployeeFilter()">
+            <option value="">All Departments</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Management">Management</option>
+            <option value="Sales">Sales</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" onclick="loadEmployees()">🔄 Refresh</button>
+          <button class="btn btn-primary" onclick="openAddEmployeeModal()">➕ Add Employee</button>
+        </div>
+      </div>
+
+      <div class="card-table-wrapper">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Salary</th>
+                <th>Assigned Manager</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="employeeTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 2: ATTENDANCE ==================== -->
+    <section class="tab-content" id="tabAttendance">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Select Date:</label>
+          <input type="date" class="select-filter" id="attendanceDateInput" onchange="loadAttendance()">
+          <select class="select-filter" id="attendanceFilterStatus" onchange="renderAttendance()">
+            <option value="">All Statuses</option>
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+            <option value="Half-Day">Half-Day</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" onclick="loadAttendance()">🔄 Refresh</button>
+          <button class="btn btn-primary" onclick="openMarkAttendanceModal()">➕ Mark Attendance</button>
+        </div>
+      </div>
+
+      <div class="card-table-wrapper">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">Emp ID</th>
+                <th>Employee Name</th>
+                <th>Date</th>
+                <th>Attendance Status</th>
+                <th style="text-align: right;">Quick Status Update</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 3: LEAVES ==================== -->
+    <section class="tab-content" id="tabLeaves">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <select class="select-filter" id="leavesFilterStatus" onchange="loadLeaves()">
+            <option value="">All Leave Statuses</option>
+            <option value="Pending">Pending Only</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" onclick="loadLeaves()">🔄 Refresh</button>
+          <button class="btn btn-primary" onclick="openApplyLeaveModal()">➕ Apply Leave</button>
+        </div>
+      </div>
+
+      <div class="card-table-wrapper">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">#</th>
+                <th>Employee</th>
+                <th>Leave Type</th>
+                <th>Duration (Start &rarr; End)</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th style="text-align: right;">Approval Action</th>
+              </tr>
+            </thead>
+            <tbody id="leavesTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL: ADD / EDIT EMPLOYEE ==================== -->
+  <div class="modal-overlay" id="employeeModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="employeeModalTitle">Add New Employee</h3>
+        <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
+      </div>
+      <form id="employeeForm" onsubmit="saveEmployee(event)">
+        <div class="modal-body">
+          <input type="hidden" id="empFormId">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name *</label>
+              <input type="text" class="form-control" id="empFirstName" required placeholder="e.g. Michael">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name *</label>
+              <input type="text" class="form-control" id="empLastName" required placeholder="e.g. Scott">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Email Address *</label>
+              <input type="email" class="form-control" id="empEmail" required placeholder="e.g. michael.scott@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department *</label>
+              <select class="form-control" id="empDepartment" required>
+                <option value="">Select Department</option>
+                <option value="IT">IT</option>
+                <option value="HR">HR</option>
+                <option value="Finance">Finance</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Management">Management</option>
+                <option value="Sales">Sales</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Designation / Role *</label>
+              <input type="text" class="form-control" id="empDesignation" required placeholder="e.g. Branch Manager">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Annual Salary ($) *</label>
+              <input type="number" step="1000" min="0" class="form-control" id="empSalary" required placeholder="e.g. 75000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Assigned Manager *</label>
+              <input type="text" class="form-control" id="empManagerName" required placeholder="e.g. Robert Vance">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('employeeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveEmployee">Save Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: MARK ATTENDANCE ==================== -->
+  <div class="modal-overlay" id="attendanceModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Mark Employee Attendance</h3>
+        <button class="modal-close" onclick="closeModal('attendanceModal')">&times;</button>
+      </div>
+      <form id="attendanceForm" onsubmit="saveAttendance(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Select Employee *</label>
+              <select class="form-control" id="attEmployeeSelect" required>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date *</label>
+              <input type="date" class="form-control" id="attDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status *</label>
+              <select class="form-control" id="attStatus" required>
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+                <option value="Half-Day">Half-Day</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('attendanceModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Record Attendance</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: APPLY LEAVE ==================== -->
+  <div class="modal-overlay" id="leaveModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Submit Leave Request</h3>
+        <button class="modal-close" onclick="closeModal('leaveModal')">&times;</button>
+      </div>
+      <form id="leaveForm" onsubmit="saveLeave(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Employee *</label>
+              <select class="form-control" id="leaveEmployeeSelect" required>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Leave Type *</label>
+              <select class="form-control" id="leaveType" required>
+                <option value="Sick Leave">Sick Leave</option>
+                <option value="Casual Leave">Casual Leave</option>
+                <option value="Annual Vacation">Annual Vacation</option>
+                <option value="Maternity/Paternity">Maternity / Paternity</option>
+                <option value="Emergency Leave">Emergency Leave</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Start Date *</label>
+              <input type="date" class="form-control" id="leaveStartDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date *</label>
+              <input type="date" class="form-control" id="leaveEndDate" required>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Reason *</label>
+              <textarea class="form-control" id="leaveReason" rows="3" required placeholder="Explain purpose of leave..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('leaveModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main JavaScript App -->
+  <script src="/js/app.js"></script>
+</body>
+</html>
