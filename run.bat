@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 
-for /f %%P in ('powershell -NoProfile -Command "$connection = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue; if ($connection) { '8081' } else { '8080' }"') do set "APP_PORT=%%P"
+for /f %%P in ('powershell -NoProfile -Command "$port = 8080; while (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue) { $port++ }; $port"') do set "APP_PORT=%%P"
 
 echo Starting Employee Management System with the local H2 database...
 echo Open http://localhost:%APP_PORT% after the application starts.
