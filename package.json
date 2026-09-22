@@ -1,0 +1,11 @@
+{
+  "name": "employee-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Employee Management System with Spring Boot & React",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build && powershell -NoProfile -Command \"if (Test-Path target/classes/static) { Copy-Item -Recurse -Force src/main/resources/static/* target/classes/static/ }\"",
+    "preview": "npm --prefix frontend run preview"
+  }
+}

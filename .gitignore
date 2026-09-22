@@ -1,6 +1,10 @@
 HELP.md
 target/
 data/
+node_modules/
+**/node_modules/
+dist/
+**/dist/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -32,3 +36,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Secrets & Environment Variables
+.env
+.env.*
+*.env
+*.key
+*.pem
+application-secret.properties
+application-prod.properties
